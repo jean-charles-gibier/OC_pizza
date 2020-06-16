@@ -3,8 +3,8 @@ import random
 import mysql.connector
 import itertools
 
-DB_USERNAME = 'openfoodfacts'
-DB_PASSWORD = 'openfoodfacts!!!!1'
+DB_USERNAME = '<USERNAME>'
+DB_PASSWORD ='<PASSWORD>'
 DB_NAME = 'mydb'
 DB_HOST = '127.0.0.1'
 
