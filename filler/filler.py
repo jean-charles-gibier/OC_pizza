@@ -4,7 +4,7 @@ import mysql.connector
 import subprocess
 
 DB_USERNAME = 'openfoodfacts'
-DB_PASSWORD = 'openfoodfacts!!!!1'
+DB_PASSWORD = '<YOPASSWD>'
 DB_NAME = 'mydb'
 DB_HOST = '127.0.0.1'
 # we need these externals infos to cleanup quickly our db
