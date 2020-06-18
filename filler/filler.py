@@ -3,7 +3,6 @@ import random
 import mysql.connector
 import subprocess
 
-# std cnx parameters to our db
 DB_USERNAME = 'openfoodfacts'
 DB_PASSWORD = 'openfoodfacts!!!!1'
 DB_NAME = 'mydb'
