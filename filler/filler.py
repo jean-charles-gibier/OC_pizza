@@ -2,9 +2,10 @@ from faker import Faker
 import random
 import mysql.connector
 import subprocess
+import sys
 
 DB_USERNAME = "openfoodfacts"
-DB_PASSWORD = "<YOPASSWD>"
+DB_PASSWORD = "openfoodfacts!!!!1"
 DB_NAME = "mydb"
 DB_HOST = "127.0.0.1"
 # we need these externals infos to cleanup quickly our db
@@ -43,6 +44,7 @@ def make_persons(nb):
             "last_name": "FAKE_LAST_NAME",
             "phone_number": "01 23 45 67 89",
             "email": "fake@email.com",
+            "password": ""
         }
     ]
 
@@ -65,6 +67,7 @@ def make_persons(nb):
                 "last_name": last_name,
                 "phone_number": phone_number,
                 "email": email,
+                "password": ""
             }
         )
     return fake_persons
@@ -110,8 +113,8 @@ def make_an_pizzeria_address(actual_list):
     while True:
         to_test = {
             "name": random.choice(["Restaurant ", "Pizzeria ", "OC Pizza "])
-            + article
-            + rand_name,
+                    + article
+                    + rand_name,
             "address": str(random.randint(1, 200)) + ", " + street,
             "city": city,
             "zip_code": f"{random.randint(1000, 99000):05}",
@@ -612,168 +615,181 @@ def get_pk_list(param_db, table_name, pk_names):
     return substitutes_list
 
 
-# workaround 2 wipe our base quickly (if needed)
-command = [PATH_MYSQL, "-u" + DB_USERNAME, "-p" + DB_PASSWORD, "--database=" + DB_NAME]
+# -----------------------------------------------------------#
+# --------------- Start of the filler program ---------------#
+# -----------------------------------------------------------#
 
-with open(SQLCLEAN_DB) as input_file:
-    sql_exec = subprocess.Popen(
-        command, stdin=input_file, stderr=subprocess.PIPE, stdout=subprocess.PIPE
-    )
-    output, error = sql_exec.communicate()
+is_order_only = "ORDERS_ONLY" in sys.argv
+
+if not is_order_only:
+    # workaround 2 wipe our base quickly (if needed)
+    command = [PATH_MYSQL, "-u" + DB_USERNAME, "-p" + DB_PASSWORD, "--database=" + DB_NAME]
+    with open(SQLCLEAN_DB) as input_file:
+        sql_exec = subprocess.Popen(
+            command, stdin=input_file, stderr=subprocess.PIPE, stdout=subprocess.PIPE
+        )
+        output, error = sql_exec.communicate()
 
 db = get_db()
-# populate table 'person' #####
-persons = make_persons(NB_PERSONS)
-current_query = """
-INSERT IGNORE INTO person (nick_name, first_name, last_name, phone_number, email) 
-                VALUES (%(nick_name)s,
-                %(first_name)s,
-                %(last_name)s,
-                %(phone_number)s,
-                %(email)s)
-"""
 cursor = db.cursor()
-try:
-    cursor.executemany(current_query, persons)
-except mysql.connector.Error as err:
-    print("Failed inserting database  (6): {}".format(err))
-db.commit()
 
-# populate table 'address' #####
-addresses = list()
+if not is_order_only:
+    # populate table 'person' #####
+    persons = make_persons(NB_PERSONS)
+    current_query = """
+    INSERT IGNORE INTO person (nick_name, first_name, last_name, phone_number, email) 
+                    VALUES (%(nick_name)s,
+                    %(first_name)s,
+                    %(last_name)s,
+                    %(phone_number)s,
+                    %(email)s)
+    """
+    try:
+        cursor.executemany(current_query, persons)
+    except mysql.connector.Error as err:
+        print("Failed inserting database  (6): {}".format(err))
+    db.commit()
+
 list_pk_person = [
     person["id_person"] for person in get_pk_list(db, "person", ("id_person",))
 ]
 
-for local_id in list_pk_person:
-    addresses.append(make_an_address(local_id))
+if not is_order_only:
+    # populate table 'address' #####
+    addresses = list()
+    for local_id in list_pk_person:
+        addresses.append(make_an_address(local_id))
 
-current_query = """
-INSERT IGNORE INTO address (num_address, person_id_person,
-        is_current, street_num,  street, city,
-        zip_code, country, localization
-        ) 
-        VALUES (
-        %(num_address)s,
-        %(person_id_person)s,
-        %(is_current)s,
-        %(street_num)s,
-        %(street)s,
-        %(city)s,
-        %(zip_code)s,
-        %(country)s,
-        %(localization)s
-        )
-"""
-try:
-    cursor.executemany(current_query, addresses)
-except mysql.connector.Error as err:
-    print("Failed inserting database  (7): {}".format(err))
+    current_query = """
+    INSERT IGNORE INTO address (num_address, person_id_person,
+            is_current, street_num,  street, city,
+            zip_code, country, localization
+            ) 
+            VALUES (
+            %(num_address)s,
+            %(person_id_person)s,
+            %(is_current)s,
+            %(street_num)s,
+            %(street)s,
+            %(city)s,
+            %(zip_code)s,
+            %(country)s,
+            %(localization)s
+            )
+    """
+    try:
+        cursor.executemany(current_query, addresses)
+    except mysql.connector.Error as err:
+        print("Failed inserting database  (7): {}".format(err))
 
-# populate table 'pizerria' #####
-addresses_pizzeria = list()
-for _ in range(NB_PIZZERIAS):
-    addresses_pizzeria.append(make_an_pizzeria_address(addresses_pizzeria))
-
-current_query = """
-    INSERT IGNORE INTO pizzeria
-    (name, city, address,
-    localization, create_time)
-    VALUES (
-    %(name)s,
-    %(city)s,
-    %(address)s,
-    %(localization)s,
-    CURRENT_TIMESTAMP);
-"""
-
-try:
-    cursor.executemany(current_query, addresses_pizzeria)
-except mysql.connector.Error as err:
-    print("Failed inserting database (8): {}".format(err))
-
-# jointure 'pizerria / adresse'  #####
-# Note : les addresses des pizzerias ne correspondront pas aux localisations
-# des adresses client. Pour l'instant dans système de localisation la distribution
-# géographique se fait au hasard
 list_pk_address = [
     person["id_address"] for person in get_pk_list(db, "address", ("id_address",))
 ]
+
+if not is_order_only:
+    # populate table 'pizerria' #####
+    addresses_pizzeria = list()
+    for _ in range(NB_PIZZERIAS):
+        addresses_pizzeria.append(make_an_pizzeria_address(addresses_pizzeria))
+
+    current_query = """
+        INSERT IGNORE INTO pizzeria
+        (name, city, address,
+        localization, create_time)
+        VALUES (
+        %(name)s,
+        %(city)s,
+        %(address)s,
+        %(localization)s,
+        CURRENT_TIMESTAMP);
+    """
+
+    try:
+        cursor.executemany(current_query, addresses_pizzeria)
+    except mysql.connector.Error as err:
+        print("Failed inserting database (8): {}".format(err))
+
 list_pk_pizzeria = [
     pizzeria["id_pizzeria"]
     for pizzeria in get_pk_list(db, "pizzeria", ("id_pizzeria",))
 ]
-jointures_addresses_pizzeria = [
-    dict(
-        {
-            "address_id_address": pk_address,
-            "pizzeria_id_pizzeria": random.choice(list_pk_pizzeria),
-        }
-    )
-    for pk_address in list_pk_address
-]
 
-current_query = """
-    INSERT IGNORE INTO address_has_pizzeria
-    (address_id_address, pizzeria_id_pizzeria, 
-    `order`)
-    VALUES (%(address_id_address)s,
-    %(pizzeria_id_pizzeria)s,
-    1);
-"""
-try:
-    cursor.executemany(current_query, jointures_addresses_pizzeria)
-except mysql.connector.Error as err:
-    print("Failed inserting database (9): {}".format(err))
-
-# populate table 'employee' #####
-# on garde list_pk_pizzeria
-
-employees = make_employees(NB_EMPLOYEES, list_pk_pizzeria)
-
-current_query = """
-    INSERT IGNORE INTO employee (
-    pizerria_id_pizzeria, num_registration, first_name,
-    last_name, entitlement, hire_date,
-    password, email, phone_number, create_time
-    )  VALUES (
-        %(pizerria_id_pizzeria)s,
-        %(num_registration)s,
-        %(first_name)s,
-        %(last_name)s,
-        %(entitlement)s,
-        %(hire_date)s,
-        %(password)s,
-        %(email)s,
-        %(phone_number)s,
-        NOW()
+if not is_order_only:
+    # jointure 'pizerria / adresse'  #####
+    # Note : les addresses des pizzerias ne correspondront pas aux localisations
+    # des adresses client. Pour l'instant dans système de localisation la distribution
+    # géographique se fait au hasard
+    jointures_addresses_pizzeria = [
+        dict(
+            {
+                "address_id_address": pk_address,
+                "pizzeria_id_pizzeria": random.choice(list_pk_pizzeria),
+            }
         )
-"""
-try:
-    cursor.executemany(current_query, employees)
-except mysql.connector.Error as err:
-    print("Failed inserting database (10): {}".format(err))
+        for pk_address in list_pk_address
+    ]
 
-# populate table 'role' #####
-# 1 seul role pour le moment
-# tout les employés seront branchés dessus
-current_query = """
-     INSERT IGNORE INTO role(
-        id_role,
-        id_parent,
-        `name`,
-        `level`    
-    ) VALUES (
-        1,
-        1,
-        'BASIC',
-        0
-    )
-"""
-try:
-    cursor.execute(current_query)
-except mysql.connector.Error as err:
-    print("Failed inserting database (11): {}".format(err))
+    current_query = """
+        INSERT IGNORE INTO address_has_pizzeria
+        (address_id_address, pizzeria_id_pizzeria, 
+        `order`)
+        VALUES (%(address_id_address)s,
+        %(pizzeria_id_pizzeria)s,
+        1);
+    """
+    try:
+        cursor.executemany(current_query, jointures_addresses_pizzeria)
+    except mysql.connector.Error as err:
+        print("Failed inserting database (9): {}".format(err))
+
+    # populate table 'employee' #####
+    # on garde list_pk_pizzeria
+
+    employees = make_employees(NB_EMPLOYEES, list_pk_pizzeria)
+
+    current_query = """
+        INSERT IGNORE INTO employee (
+        pizerria_id_pizzeria, num_registration, first_name,
+        last_name, entitlement, hire_date,
+        password, email, phone_number, create_time
+        )  VALUES (
+            %(pizerria_id_pizzeria)s,
+            %(num_registration)s,
+            %(first_name)s,
+            %(last_name)s,
+            %(entitlement)s,
+            %(hire_date)s,
+            %(password)s,
+            %(email)s,
+            %(phone_number)s,
+            NOW()
+            )
+    """
+    try:
+        cursor.executemany(current_query, employees)
+    except mysql.connector.Error as err:
+        print("Failed inserting database (10): {}".format(err))
+
+    # populate table 'role' #####
+    # 1 seul role pour le moment
+    # tout les employés seront branchés dessus
+    current_query = """
+         INSERT IGNORE INTO role(
+            id_role,
+            id_parent,
+            `name`,
+            `level`    
+        ) VALUES (
+            1,
+            1,
+            'BASIC',
+            0
+        )
+    """
+    try:
+        cursor.execute(current_query)
+    except mysql.connector.Error as err:
+        print("Failed inserting database (11): {}".format(err))
 
 list_pk_role = [role["id_role"] for role in get_pk_list(db, "role", ("id_role",))]
 list_pk_employee = [
@@ -781,81 +797,84 @@ list_pk_employee = [
     for employee in get_pk_list(db, "employee", ("id_employee",))
 ]
 
-jointures_role_employee = [
-    dict({"employee_id_employee": pk_employee, "role_id_role": list_pk_role[0]})
-    for pk_employee in list_pk_employee
-]
+if not is_order_only:
 
-current_query = """
-INSERT IGNORE INTO employee_has_role (
-    employee_id_employee,
-    role_id_role,
-    start_date
-) VALUES (
-    %(employee_id_employee)s,
-    %(role_id_role)s,
-    now()
-)
-"""
-try:
-    cursor.executemany(current_query, jointures_role_employee)
-except mysql.connector.Error as err:
-    print("Failed inserting database (12): {}".format(err))
+    jointures_role_employee = [
+        dict({"employee_id_employee": pk_employee, "role_id_role": list_pk_role[0]})
+        for pk_employee in list_pk_employee
+    ]
 
-# populate table 'category'
-# idem  1 seule catégorie pour le moment
-
-current_query = """
- INSERT IGNORE INTO `category`(
-    `id_category`,
-    `id_category_parent`,
-    `libelle`
+    current_query = """
+    INSERT IGNORE INTO employee_has_role (
+        employee_id_employee,
+        role_id_role,
+        start_date
     ) VALUES (
-    1,
-    1,
-    'BASIC'
+        %(employee_id_employee)s,
+        %(role_id_role)s,
+        now()
     )
-"""
-try:
-    cursor.execute(current_query)
-except mysql.connector.Error as err:
-    print("Failed inserting database (13): {}".format(err))
+    """
+    try:
+        cursor.executemany(current_query, jointures_role_employee)
+    except mysql.connector.Error as err:
+        print("Failed inserting database (12): {}".format(err))
 
-# populate table 'menu'
-# idem  1 seul menu pour le moment
+    # populate table 'category'
+    # idem  1 seule catégorie pour le moment
 
-current_query = """
-INSERT IGNORE INTO `menu`(
-    `name`,
-    `price`
-) VALUES (
-    'GENERIC',
-    0
-)
-"""
-try:
-    cursor.execute(current_query)
-except mysql.connector.Error as err:
-    print("Failed inserting database (14): {}".format(err))
+    current_query = """
+     INSERT IGNORE INTO `category`(
+        `id_category`,
+        `id_category_parent`,
+        `libelle`
+        ) VALUES (
+        1,
+        1,
+        'BASIC'
+        )
+    """
+    try:
+        cursor.execute(current_query)
+    except mysql.connector.Error as err:
+        print("Failed inserting database (13): {}".format(err))
+
+    # populate table 'menu'
+    # idem  1 seul menu pour le moment
+
+    current_query = """
+    INSERT IGNORE INTO `menu`(
+        `name`,
+        `price`
+    ) VALUES (
+        'GENERIC',
+        0
+    )
+    """
+    try:
+        cursor.execute(current_query)
+    except mysql.connector.Error as err:
+        print("Failed inserting database (14): {}".format(err))
 
 list_pk_menu = [menu["id_menu"] for menu in get_pk_list(db, "menu", ("id_menu",))]
 
-# populate table 'unit'
-list_unities = make_unities()
-current_query = """
-INSERT IGNORE INTO `unity`
-    (
-        `label`,
-        `short_label`
-    ) VALUES (
-        %(label)s,
-        %(short_label)s
-    )
-"""
-try:
-    cursor.executemany(current_query, list_unities)
-except mysql.connector.Error as err:
-    print("Failed inserting database (15): {}".format(err))
+if not is_order_only:
+    # populate table 'unit'
+    list_unities = make_unities()
+    current_query = """
+    INSERT IGNORE INTO `unity`
+        (
+            `label`,
+            `short_label`
+        ) VALUES (
+            %(label)s,
+            %(short_label)s
+        )
+    """
+    try:
+        cursor.executemany(current_query, list_unities)
+    except mysql.connector.Error as err:
+        print("Failed inserting database (15): {}".format(err))
 
 # populate table 'menu_item'
 list_pk_category = [
@@ -863,81 +882,79 @@ list_pk_category = [
 ]
 menu_items = make_menu_items(list_pk_category[0], list_pk_menu[0])
 
-current_query = """
-INSERT IGNORE INTO menu_item(
-    unit_price,
-    preparation_time,
-    picture,
-    description,
-    category_id_category,
-    menu_id_menu
+if not is_order_only:
+    current_query = """
+    INSERT IGNORE INTO menu_item(
+        unit_price,
+        preparation_time,
+        picture,
+        description,
+        category_id_category,
+        menu_id_menu
+        ) VALUES (
+        %(unit_price)s,
+        %(preparation_time)s,
+        %(picture)s,
+        %(description)s,
+        %(category_id_category)s,
+        %(menu_id_menu)s
+        )
+    """
+    try:
+        cursor.executemany(current_query, menu_items)
+    except mysql.connector.Error as err:
+        print("Failed inserting database (16): {}".format(err))
+
+    # populate table 'recipe'
+    # ici on va faire une simple insertion "from select"
+    # qui va reprendre les infos de menu_item en faisant
+    # une pseudo recette pour chaque 'menu_item'
+
+    current_query = """
+    INSERT IGNORE INTO recipe (`menu_item_id_menu_item`,  `name`,
+     `description`, `preparation_time`, `tl_procedure`)
+    select 
+    id_menu_item as `menu_item_id_menu_item`, 
+    concat('Short: ', replace(reverse(description),' ', '') ) as `name`,
+    concat('Recipe of: ', description) as `description`,
+    FLOOR(RAND() * 60) as `preparation_time`,
+    ' Sed ut perspiciatis, unde omnis iste natus error sit voluptatem 
+    accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae
+    ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt,
+    explicabo. Nemo enim ipsam voluptatem, quia voluptas sit, aspernatur aut
+    odit aut fugit, sed quia consequuntur magni dolores eos, qui ratione
+    voluptatem sequi nesciunt, neque porro quisquam est, qui dolorem ipsum'
+    as `tl_procedure`
+    from menu_item
+    """
+    try:
+        cursor.execute(current_query)
+    except mysql.connector.Error as err:
+        print("Failed inserting database (17): {}".format(err))
+
+    # populate ingredients
+    ingredients = make_ingredients()
+    current_query = """
+    INSERT IGNORE INTO `ingredient`
+    (
+        `name`,
+        `id_unity`,
+        `value_unity`,
+        `unit_price`,
+        `minimum_limit`
     ) VALUES (
-    %(unit_price)s,
-    %(preparation_time)s,
-    %(picture)s,
-    %(description)s,
-    %(category_id_category)s,
-    %(menu_id_menu)s
+        %(name)s,
+        %(id_unity)s,
+        %(value_unity)s,
+        %(unit_price)s,
+        %(minimum_limit)s
     )
-"""
-try:
-    cursor.executemany(current_query, menu_items)
-except mysql.connector.Error as err:
-    print("Failed inserting database (16): {}".format(err))
+    """
+    try:
+        cursor.executemany(current_query, ingredients)
+    except mysql.connector.Error as err:
+        print("Failed inserting database (18): {}".format(err))
 
-# populate table 'recipe'
-# ici on va faire une simple insertion "from select"
-# qui va reprendre les infos de menu_item en faisant
-# une pseudo recette pour chaque 'menu_item'
-
-current_query = """
-INSERT IGNORE INTO recipe (`menu_item_id_menu_item`,  `name`,
- `description`, `preparation_time`, `tl_procedure`)
-select 
-id_menu_item as `menu_item_id_menu_item`, 
-concat('Short: ', replace(reverse(description),' ', '') ) as `name`,
-concat('Recipe of: ', description) as `description`,
-FLOOR(RAND() * 60) as `preparation_time`,
-' Sed ut perspiciatis, unde omnis iste natus error sit voluptatem 
-accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae
-ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt,
-explicabo. Nemo enim ipsam voluptatem, quia voluptas sit, aspernatur aut
-odit aut fugit, sed quia consequuntur magni dolores eos, qui ratione
-voluptatem sequi nesciunt, neque porro quisquam est, qui dolorem ipsum'
-as `tl_procedure`
-from menu_item
-"""
-try:
-    cursor.execute(current_query)
-except mysql.connector.Error as err:
-    print("Failed inserting database (17): {}".format(err))
-
-# populate ingredients
-ingredients = make_ingredients()
-current_query = """
-INSERT IGNORE INTO `ingredient`
-(
-    `name`,
-    `id_unity`,
-    `value_unity`,
-    `unit_price`,
-    `minimum_limit`
-) VALUES (
-    %(name)s,
-    %(id_unity)s,
-    %(value_unity)s,
-    %(unit_price)s,
-    %(minimum_limit)s
-)
-"""
-try:
-    cursor.executemany(current_query, ingredients)
-except mysql.connector.Error as err:
-    print("Failed inserting database (18): {}".format(err))
-
-# populate ingredients
-# On a les ingrédients et les recettes
-# Maintenant on distribue au hasard 4 ou 5 ingrédients par recette
 list_pk_recipes = [
     recipe["id_recipe"] for recipe in get_pk_list(db, "recipe", ("id_recipe",))
 ]
@@ -946,64 +963,68 @@ list_pk_ingredients = [
     for ingredient in get_pk_list(db, "ingredient", ("id_ingredient",))
 ]
 
-# (on va mettre de la pate à pizza en obligatoire qd même :-)
-current_query = """
-insert ignore into recipe_has_ingredient
-select id_recipe as recipe_id_recipe , 
-(SELECT id_ingredient FROM ingredient where name like '%dough%' ORDER BY RAND() LIMIT 1) as ingredient_id_ingredient,
-(1.1 + RAND())/4.0 as quantity
-from recipe
-"""
-try:
-    cursor.execute(current_query)
-except mysql.connector.Error as err:
-    print("Failed inserting database (19): {}".format(err))
-
-#  pour chaque recette on affecte 4 à 5 ingrédients au hasard
-current_query = """
+if not is_order_only:
+    # populate ingredients
+    # On a les ingrédients et les recettes
+    # Maintenant on distribue au hasard 4 ou 5 ingrédients par recette
+    # (on va mettre de la pate à pizza en obligatoire qd même :-)
+    current_query = """
     insert ignore into recipe_has_ingredient
-        select %(id_recipe)s, id_ingredient, (minimum_limit / 200.0)
-        from 
-            (select id_ingredient, minimum_limit 
-            from ingredient where name not like '%dough%' 
-            ORDER BY RAND() LIMIT %(some_limit)s
-            ) a
-"""
-lst_join_recipes = list()
+    select id_recipe as recipe_id_recipe , 
+    (SELECT id_ingredient FROM ingredient where name like '%dough%' ORDER BY RAND() LIMIT 1) as ingredient_id_ingredient,
+    (5.0 + RAND())/4.0 as quantity
+    from recipe
+    """
+    try:
+        cursor.execute(current_query)
+    except mysql.connector.Error as err:
+        print("Failed inserting database (19): {}".format(err))
 
-for id_recipe in list_pk_recipes:
-    lst_join_recipes.append(
-        {"id_recipe": id_recipe, "some_limit": random.choice([4, 5])}
+    #  pour chaque recette on affecte 4 à 5 ingrédients au hasard
+    current_query = """
+        insert ignore into recipe_has_ingredient
+            select %(id_recipe)s, id_ingredient, (minimum_limit / 200.0)
+            from 
+                (select id_ingredient, minimum_limit 
+                from ingredient where name not like '%dough%' 
+                ORDER BY RAND() LIMIT %(some_limit)s
+                ) a
+    """
+    lst_join_recipes = list()
+
+    for id_recipe in list_pk_recipes:
+        lst_join_recipes.append(
+            {"id_recipe": id_recipe, "some_limit": random.choice([4, 5])}
+        )
+
+    try:
+        cursor.executemany(current_query, lst_join_recipes)
+    except mysql.connector.Error as err:
+        print("Failed inserting database (20): {}".format(err))
+
+    # on constitue les stock pour chaque paire ingrédient/magasin
+    for id_pizzeria in list_pk_pizzeria:
+        current_query = (
+                "insert ignore into stock_ingredient "
+                "(ingredient_id_ingredient, date_change, value_stock, pizzeria_id_pizzeria)"
+                "select id_ingredient, "
+                "now(), value_unity * 100.0, " + str(id_pizzeria) + " from ingredient"
+        )
+        cursor.execute(current_query)
+
+    # Affectation des 'statuts'
+    statuts = make_status()
+    current_query = """
+    INSERT IGNORE INTO `statut` (
+    `label`
+    ) VALUES (
+    %(label)s
     )
-
-try:
-    cursor.executemany(current_query, lst_join_recipes)
-except mysql.connector.Error as err:
-    print("Failed inserting database (20): {}".format(err))
-
-# on constitue les stock pour chaque paire ingrédient/magasin
-for id_pizzeria in list_pk_pizzeria:
-    current_query = (
-            "insert ignore into stock_ingredient "
-            "(ingredient_id_ingredient, date_change, value_stock, pizzeria_id_pizzeria)"
-            "select id_ingredient, "
-            "now(), value_unity * 100.0, " + str(id_pizzeria) + " from ingredient"
-    )
-    cursor.execute(current_query)
-
-# Affectation des 'statuts'
-statuts = make_status()
-current_query = """
-INSERT IGNORE INTO `statut` (
-`label`
-) VALUES (
-%(label)s
-)
-"""
-try:
-    cursor.executemany(current_query, statuts)
-except mysql.connector.Error as err:
-    print("Failed inserting database (21): {}".format(err))
+    """
+    try:
+        cursor.executemany(current_query, statuts)
+    except mysql.connector.Error as err:
+        print("Failed inserting database (21): {}".format(err))
 
 # maintenant on va pouvoir générer quelques commandes
 # 'Order' est rattaché à 3 tables en many 2 many

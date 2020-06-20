@@ -56,17 +56,19 @@ inner join (
 # visualisation des stock en cours par prizzeria et ingredient
 
 select 
-	s.ingredient_id_ingredient , 
+	s.ingredient_id_ingredient,
+	s.pizzeria_id_pizzeria , i.name, p.name,
 	s.date_change ,
-    s.value_stock,
-    s.pizzeria_id_pizzeria
+    s.value_stock
 from   stock_ingredient s
+inner join pizzeria p on s.pizzeria_id_pizzeria = p.id_pizzeria
+inner join ingredient i on s.ingredient_id_ingredient = i.id_ingredient
     where s.date_change = (
 		select max(date_change) from stock_ingredient dc where
         dc.ingredient_id_ingredient = s.ingredient_id_ingredient
         and dc.pizzeria_id_pizzeria  = s.pizzeria_id_pizzeria 
         )
-    group by s.ingredient_id_ingredient, s.pizzeria_id_pizzeria 
+--     group by s.ingredient_id_ingredient, s.pizzeria_id_pizzeria 
 	;
 
 
