@@ -29,7 +29,7 @@ order by date_change desc;
  insert into stock_ingredient (ingredient_id_ingredient, date_change, value_stock, pizzeria_id_pizzeria)
 select 
 	s.ingredient_id_ingredient , 
-	now(),
+	DATE_ADD(NOW(), INTERVAL 1 HOUR),
     s.value_stock - a.quantity,
     s.pizzeria_id_pizzeria
 from   stock_ingredient s

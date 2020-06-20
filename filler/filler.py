@@ -1,8 +1,15 @@
-from faker import Faker
-import random
-import mysql.connector
+"""
+usage :
+filler.py [ORDERS_ONLY]
+fills all tables of schema OC Pizza with coherent test cases
+If parameter "ORDERS_ONLY" is set, the filler will play only
+the ordering part of the users stories.
+"""
 import subprocess
 import sys
+import random
+from faker import Faker
+import mysql.connector
 
 DB_USERNAME = "openfoodfacts"
 DB_PASSWORD = "openfoodfacts!!!!1"
@@ -19,11 +26,15 @@ NB_PIZZERIAS = 10
 NB_EMPLOYEES = NB_PIZZERIAS * 6
 NB_ORDERS = 15
 
-fake = Faker("fr_FR")
-fake_italiano = Faker("it_IT")
+FAKE_FRANCAIS = Faker("fr_FR")
+FAKE_ITALIANO = Faker("it_IT")
 
 
 def get_db():
+    """
+    set cnx with database
+    :return: handle connector
+    """
     return mysql.connector.connect(
         **{
             "user": DB_USERNAME,
@@ -35,8 +46,12 @@ def get_db():
     )
 
 
-def make_persons(nb):
-    # generate people
+def make_persons(nb_persons):
+    """
+    make_persons generate person items
+    :param nb_persons: nb to generate
+    :return: list
+    """
     fake_persons = [
         {
             "nick_name": "FAKE_OWNER",
@@ -44,13 +59,13 @@ def make_persons(nb):
             "last_name": "FAKE_LAST_NAME",
             "phone_number": "01 23 45 67 89",
             "email": "fake@email.com",
-            "password": ""
+            "password": "",
         }
     ]
 
-    for _ in range(1, nb):
-        last_name = fake.last_name()
-        first_name = fake.first_name()
+    for _ in range(1, nb_persons):
+        last_name = FAKE_FRANCAIS.last_name()
+        first_name = FAKE_FRANCAIS.first_name()
         nick_name = last_name[0:4] + "_" + str(random.randrange(9999))
         phone_number = "06" + " {:02d} {:02d} {:02d} {:02d}".format(
             random.randrange(99),
@@ -58,7 +73,7 @@ def make_persons(nb):
             random.randrange(99),
             random.randrange(99),
         )
-        email = first_name + "." + last_name + "@" + fake.domain_name(levels=1)
+        email = first_name + "." + last_name + "@" + FAKE_FRANCAIS.domain_name(levels=1)
 
         fake_persons.append(
             {
@@ -67,20 +82,25 @@ def make_persons(nb):
                 "last_name": last_name,
                 "phone_number": phone_number,
                 "email": email,
-                "password": ""
+                "password": "",
             }
         )
     return fake_persons
 
 
 def make_an_address(id_person):
+    """
+    make_an_address make address items one for each person
+    :param id_person:
+    :return: list
+    """
     return {
         "num_address": "0",
         "person_id_person": str(id_person),
         "is_current": 1,
         "street_num": random.randint(1, 200),
-        "street": fake.street_name(),
-        "city": fake.city(),
+        "street": FAKE_FRANCAIS.street_name(),
+        "city": FAKE_FRANCAIS.city(),
         "zip_code": f"{random.randint(1000, 99000):05}",
         "country": "France",
         "localization": "ASK_GG",
@@ -93,8 +113,8 @@ def make_an_pizzeria_address(actual_list):
     :param actual_list: list for doublon checking
     :return: new list
     """
-    city = str(fake.city())
-    street = str(fake.street_name())
+    city = str(FAKE_FRANCAIS.city())
+    street = str(FAKE_FRANCAIS.street_name())
     rand_name = random.choice([city, street])
     is_vowel = str(rand_name).upper().startswith(("A", "E", "I", "O", "U", "Y"))
     article = (
@@ -113,8 +133,7 @@ def make_an_pizzeria_address(actual_list):
     while True:
         to_test = {
             "name": random.choice(["Restaurant ", "Pizzeria ", "OC Pizza "])
-                    + article
-                    + rand_name,
+                    + article + rand_name,
             "address": str(random.randint(1, 200)) + ", " + street,
             "city": city,
             "zip_code": f"{random.randint(1000, 99000):05}",
@@ -127,7 +146,7 @@ def make_an_pizzeria_address(actual_list):
     return to_test
 
 
-def make_employees(nb, param_pk_pizzeria):
+def make_employees(nb_employees, param_pk_pizzeria):
     """
     # generate employee
     """
@@ -135,9 +154,9 @@ def make_employees(nb, param_pk_pizzeria):
     count_for_each = dict()
     entitlement = ["MANAGER", "COOK", "CASHIER", "DELIVERER", "WAITER"]
 
-    for _ in range(1, nb):
-        last_name = fake_italiano.last_name()
-        first_name = fake_italiano.first_name()
+    for _ in range(1, nb_employees):
+        last_name = FAKE_ITALIANO.last_name()
+        first_name = FAKE_ITALIANO.first_name()
         random_pizzeria = random.choice(param_pk_pizzeria)
         count_for_each[random_pizzeria] = (
             0
@@ -145,7 +164,7 @@ def make_employees(nb, param_pk_pizzeria):
             else count_for_each[random_pizzeria] + 1
         )
         num_registration = (
-                str(random_pizzeria) + "-" + str(count_for_each[random_pizzeria] + 1)
+            str(random_pizzeria) + "-" + str(count_for_each[random_pizzeria] + 1)
         )
         phone_number = "06" + " {:02d} {:02d} {:02d} {:02d}".format(
             random.randrange(99),
@@ -153,7 +172,7 @@ def make_employees(nb, param_pk_pizzeria):
             random.randrange(99),
             random.randrange(99),
         )
-        email = first_name + "." + last_name + "@" + fake.domain_name(levels=1)
+        email = first_name + "." + last_name + "@" + FAKE_FRANCAIS.domain_name(levels=1)
 
         fake_employees.append(
             {
@@ -605,7 +624,9 @@ def get_pk_list(param_db, table_name, pk_names):
     substitutes_list = list()
 
     local_cursor = param_db.cursor()
-    local_cursor.execute("select " + ",".join(pk_names) + "    from  {}".format(table_name))
+    local_cursor.execute(
+        "select " + ",".join(pk_names) + "    from  {}".format(table_name)
+    )
 
     for a_row in local_cursor:
         map_row = dict(zip(local_cursor.column_names, a_row))
@@ -619,21 +640,26 @@ def get_pk_list(param_db, table_name, pk_names):
 # --------------- Start of the filler program ---------------#
 # -----------------------------------------------------------#
 
-is_order_only = "ORDERS_ONLY" in sys.argv
+IS_ORDER_ONLY = "ORDERS_ONLY" in sys.argv
 
-if not is_order_only:
+if not IS_ORDER_ONLY:
     # workaround 2 wipe our base quickly (if needed)
-    command = [PATH_MYSQL, "-u" + DB_USERNAME, "-p" + DB_PASSWORD, "--database=" + DB_NAME]
+    wipe_command = [
+        PATH_MYSQL,
+        "-u" + DB_USERNAME,
+        "-p" + DB_PASSWORD,
+        "--database=" + DB_NAME,
+    ]
     with open(SQLCLEAN_DB) as input_file:
         sql_exec = subprocess.Popen(
-            command, stdin=input_file, stderr=subprocess.PIPE, stdout=subprocess.PIPE
+            wipe_command, stdin=input_file, stderr=subprocess.PIPE, stdout=subprocess.PIPE
         )
         output, error = sql_exec.communicate()
 
 db = get_db()
 cursor = db.cursor()
 
-if not is_order_only:
+if not IS_ORDER_ONLY:
     # populate table 'person' #####
     persons = make_persons(NB_PERSONS)
     current_query = """
@@ -654,7 +680,7 @@ list_pk_person = [
     person["id_person"] for person in get_pk_list(db, "person", ("id_person",))
 ]
 
-if not is_order_only:
+if not IS_ORDER_ONLY:
     # populate table 'address' #####
     addresses = list()
     for local_id in list_pk_person:
@@ -686,7 +712,7 @@ list_pk_address = [
     person["id_address"] for person in get_pk_list(db, "address", ("id_address",))
 ]
 
-if not is_order_only:
+if not IS_ORDER_ONLY:
     # populate table 'pizerria' #####
     addresses_pizzeria = list()
     for _ in range(NB_PIZZERIAS):
@@ -714,7 +740,7 @@ list_pk_pizzeria = [
     for pizzeria in get_pk_list(db, "pizzeria", ("id_pizzeria",))
 ]
 
-if not is_order_only:
+if not IS_ORDER_ONLY:
     # jointure 'pizerria / adresse'  #####
     # Note : les addresses des pizzerias ne correspondront pas aux localisations
     # des adresses client. Pour l'instant dans système de localisation la distribution
@@ -797,7 +823,7 @@ list_pk_employee = [
     for employee in get_pk_list(db, "employee", ("id_employee",))
 ]
 
-if not is_order_only:
+if not IS_ORDER_ONLY:
 
     jointures_role_employee = [
         dict({"employee_id_employee": pk_employee, "role_id_role": list_pk_role[0]})
@@ -858,7 +884,7 @@ if not is_order_only:
 
 list_pk_menu = [menu["id_menu"] for menu in get_pk_list(db, "menu", ("id_menu",))]
 
-if not is_order_only:
+if not IS_ORDER_ONLY:
     # populate table 'unit'
     list_unities = make_unities()
     current_query = """
@@ -882,7 +908,7 @@ list_pk_category = [
 ]
 menu_items = make_menu_items(list_pk_category[0], list_pk_menu[0])
 
-if not is_order_only:
+if not IS_ORDER_ONLY:
     current_query = """
     INSERT IGNORE INTO menu_item(
         unit_price,
@@ -963,7 +989,7 @@ list_pk_ingredients = [
     for ingredient in get_pk_list(db, "ingredient", ("id_ingredient",))
 ]
 
-if not is_order_only:
+if not IS_ORDER_ONLY:
     # populate ingredients
     # On a les ingrédients et les recettes
     # Maintenant on distribue au hasard 4 ou 5 ingrédients par recette
@@ -1005,10 +1031,10 @@ if not is_order_only:
     # on constitue les stock pour chaque paire ingrédient/magasin
     for id_pizzeria in list_pk_pizzeria:
         current_query = (
-                "insert ignore into stock_ingredient "
-                "(ingredient_id_ingredient, date_change, value_stock, pizzeria_id_pizzeria)"
-                "select id_ingredient, "
-                "now(), value_unity * 100.0, " + str(id_pizzeria) + " from ingredient"
+            "insert ignore into stock_ingredient "
+            "(ingredient_id_ingredient, date_change, value_stock, pizzeria_id_pizzeria)"
+            "select id_ingredient, "
+            "now(), value_unity * 100.0, " + str(id_pizzeria) + " from ingredient"
         )
         cursor.execute(current_query)
 
@@ -1101,8 +1127,7 @@ list_order_has_menu_item = list()
 list_order_has_person_cmd = list()
 
 for tuple_ohp in random.sample(
-        list_order_has_person, NB_ORDERS - random.randrange(1, NB_ORDERS / 3)
-):
+        list_order_has_person, NB_ORDERS - random.randrange(1, NB_ORDERS / 3)):
     # choix aléatoire de 1 à 5 plats (menu_item) par commande
     # avec une qté aléatoire de 1 à 3 pour chaque plat
     set_menu_item = random.sample(list_pk_menu_item, random.randrange(1, 5))
@@ -1204,7 +1229,7 @@ insert into stock_ingredient (ingredient_id_ingredient,
     date_change, value_stock, pizzeria_id_pizzeria)
 select 
     s.ingredient_id_ingredient , 
-    now() + 10000,
+    DATE_ADD(NOW(), INTERVAL 1 HOUR),
     s.value_stock - a.quantity,
     s.pizzeria_id_pizzeria
 from stock_ingredient s
