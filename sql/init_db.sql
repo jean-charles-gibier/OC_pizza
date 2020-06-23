@@ -41,7 +41,7 @@ DROP TABLE IF EXISTS `mydb`.`employee` ;
 
 CREATE TABLE IF NOT EXISTS `mydb`.`employee` (
   `id_employee` INT NOT NULL AUTO_INCREMENT,
-  `pizerria_id_pizzeria` INT NOT NULL,
+  `pizzeria_id_pizzeria` INT NOT NULL,
   `num_registration` VARCHAR(45) NOT NULL,
   `first_name` VARCHAR(100) NOT NULL,
   `last_name` VARCHAR(100) NULL,
@@ -52,10 +52,10 @@ CREATE TABLE IF NOT EXISTS `mydb`.`employee` (
   `phone_number` VARCHAR(45) NULL,
   `create_time` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE INDEX `numReg_UNIQUE` (`num_registration` ASC) VISIBLE,
-  PRIMARY KEY (`id_employee`, `pizerria_id_pizzeria`),
-  INDEX `fk_employee_pizerria1_idx` (`pizerria_id_pizzeria` ASC) VISIBLE,
+  PRIMARY KEY (`id_employee`, `pizzeria_id_pizzeria`),
+  INDEX `fk_employee_pizerria1_idx` (`pizzeria_id_pizzeria` ASC) VISIBLE,
   CONSTRAINT `fk_employee_pizerria1`
-    FOREIGN KEY (`pizerria_id_pizzeria`)
+    FOREIGN KEY (`pizzeria_id_pizzeria`)
     REFERENCES `mydb`.`pizzeria` (`id_pizzeria`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
@@ -143,20 +143,13 @@ DROP TABLE IF EXISTS `mydb`.`menu_item` ;
 
 CREATE TABLE IF NOT EXISTS `mydb`.`menu_item` (
   `id_menu_item` INT NOT NULL AUTO_INCREMENT,
-  `menu_id_menu` INT NOT NULL,
   `category_id_category` INT NOT NULL,
   `description` VARCHAR(255) NOT NULL,
   `unit_price` DECIMAL(10,2) NULL,
   `picture` VARCHAR(255) NULL,
   `preparation_time` INT NULL,
-  PRIMARY KEY (`id_menu_item`, `menu_id_menu`, `category_id_category`),
-  INDEX `fk_menu_item_menu1_idx` (`menu_id_menu` ASC) VISIBLE,
+  PRIMARY KEY (`id_menu_item`, `category_id_category`),
   INDEX `fk_menu_item_category1_idx` (`category_id_category` ASC) VISIBLE,
-  CONSTRAINT `fk_menu_item_menu1`
-    FOREIGN KEY (`menu_id_menu`)
-    REFERENCES `mydb`.`menu` (`id_menu`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
   CONSTRAINT `fk_menu_item_category1`
     FOREIGN KEY (`category_id_category`)
     REFERENCES `mydb`.`category` (`id_category`)
@@ -203,15 +196,15 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`unity`
+-- Table `mydb`.`unit`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`unity` ;
+DROP TABLE IF EXISTS `mydb`.`unit` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`unity` (
-  `id_unity` INT NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS `mydb`.`unit` (
+  `id_unit` INT NOT NULL AUTO_INCREMENT,
   `label` VARCHAR(255) NOT NULL,
   `short_label` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`id_unity`))
+  PRIMARY KEY (`id_unit`))
 ENGINE = InnoDB;
 
 
@@ -223,15 +216,15 @@ DROP TABLE IF EXISTS `mydb`.`ingredient` ;
 CREATE TABLE IF NOT EXISTS `mydb`.`ingredient` (
   `id_ingredient` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(250) NOT NULL,
-  `id_unity` INT NULL,
-  `value_unity` DECIMAL(10,2) NULL,
+  `id_unit` INT NULL,
+  `value_unit` DECIMAL(10,2) NULL,
   `unit_price` DECIMAL(10,2) NULL,
   `minimum_limit` DECIMAL(10,2) NULL,
   PRIMARY KEY (`id_ingredient`),
-  INDEX `fk_ingredient_unity1_idx` (`id_unity` ASC) VISIBLE,
+  INDEX `fk_ingredient_unity1_idx` (`id_unit` ASC) VISIBLE,
   CONSTRAINT `fk_ingredient_unity1`
-    FOREIGN KEY (`id_unity`)
-    REFERENCES `mydb`.`unity` (`id_unity`)
+    FOREIGN KEY (`id_unit`)
+    REFERENCES `mydb`.`unit` (`id_unit`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -282,6 +275,7 @@ DROP TABLE IF EXISTS `mydb`.`person` ;
 CREATE TABLE IF NOT EXISTS `mydb`.`person` (
   `id_person` INT NOT NULL AUTO_INCREMENT,
   `nick_name` VARCHAR(100) NOT NULL,
+  `password` VARCHAR(32) NOT NULL,
   `first_name` VARCHAR(100) NOT NULL,
   `last_name` VARCHAR(100) NULL,
   `phone_number` VARCHAR(45) NOT NULL,
@@ -424,11 +418,13 @@ CREATE TABLE IF NOT EXISTS `mydb`.`order_has_person` (
   `order_id_order` INT NOT NULL,
   `person_id_person` INT NOT NULL,
   `statut_id_statut` INT NOT NULL,
+  `employee_id_employee` INT NOT NULL,
   `ts_change` TIMESTAMP NULL,
-  PRIMARY KEY (`order_id_order`, `person_id_person`, `statut_id_statut`),
+  PRIMARY KEY (`order_id_order`, `person_id_person`, `statut_id_statut`, `employee_id_employee`),
   INDEX `fk_order_has_person_person1_idx` (`person_id_person` ASC) VISIBLE,
   INDEX `fk_order_has_person_order1_idx` (`order_id_order` ASC) VISIBLE,
   INDEX `fk_order_has_person_statut1_idx` (`statut_id_statut` ASC) VISIBLE,
+  INDEX `fk_order_has_person_employee1_idx` (`employee_id_employee` ASC) VISIBLE,
   CONSTRAINT `fk_order_has_person_order1`
     FOREIGN KEY (`order_id_order`)
     REFERENCES `mydb`.`order` (`id_order`)
@@ -442,6 +438,11 @@ CREATE TABLE IF NOT EXISTS `mydb`.`order_has_person` (
   CONSTRAINT `fk_order_has_person_statut1`
     FOREIGN KEY (`statut_id_statut`)
     REFERENCES `mydb`.`statut` (`id_statut`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_order_has_person_employee1`
+    FOREIGN KEY (`employee_id_employee`)
+    REFERENCES `mydb`.`employee` (`id_employee`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -467,6 +468,30 @@ CREATE TABLE IF NOT EXISTS `mydb`.`address_has_pizzeria` (
   CONSTRAINT `fk_adress_has_pizerria_pizerria1`
     FOREIGN KEY (`pizzeria_id_pizzeria`)
     REFERENCES `mydb`.`pizzeria` (`id_pizzeria`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`menu_has_menu_item`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `mydb`.`menu_has_menu_item` ;
+
+CREATE TABLE IF NOT EXISTS `mydb`.`menu_has_menu_item` (
+  `menu_id_menu` INT NOT NULL,
+  `menu_item_id_menu_item` INT NOT NULL,
+  PRIMARY KEY (`menu_id_menu`, `menu_item_id_menu_item`),
+  INDEX `fk_menu_has_menu_item_menu_item1_idx` (`menu_item_id_menu_item` ASC) VISIBLE,
+  INDEX `fk_menu_has_menu_item_menu1_idx` (`menu_id_menu` ASC) VISIBLE,
+  CONSTRAINT `fk_menu_has_menu_item_menu1`
+    FOREIGN KEY (`menu_id_menu`)
+    REFERENCES `mydb`.`menu` (`id_menu`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_menu_has_menu_item_menu_item1`
+    FOREIGN KEY (`menu_item_id_menu_item`)
+    REFERENCES `mydb`.`menu_item` (`id_menu_item`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;

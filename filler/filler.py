@@ -11,10 +11,12 @@ import random
 from faker import Faker
 import mysql.connector
 
+
 DB_USERNAME = "<YOURUSERNAME>"
 DB_PASSWORD = "<YOURPASSWD>"
 DB_NAME = "<YOURDBNAME>"
 DB_HOST = "<YOURHOST>"
+
 # we need these externals infos to cleanup quickly our db
 # DB_USERNAME / DB_PASSWORD will be used for authentication
 PATH_MYSQL = "c:/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe"
@@ -164,7 +166,7 @@ def make_employees(nb_employees, param_pk_pizzeria):
             else count_for_each[random_pizzeria] + 1
         )
         num_registration = (
-            str(random_pizzeria) + "-" + str(count_for_each[random_pizzeria] + 1)
+                str(random_pizzeria) + "-" + str(count_for_each[random_pizzeria] + 1)
         )
         phone_number = "06" + " {:02d} {:02d} {:02d} {:02d}".format(
             random.randrange(99),
@@ -176,7 +178,7 @@ def make_employees(nb_employees, param_pk_pizzeria):
 
         fake_employees.append(
             {
-                "pizerria_id_pizzeria": str(random_pizzeria),
+                "pizzeria_id_pizzeria": str(random_pizzeria),
                 "num_registration": num_registration,
                 "first_name": first_name,
                 "last_name": last_name,
@@ -190,10 +192,9 @@ def make_employees(nb_employees, param_pk_pizzeria):
     return fake_employees
 
 
-def make_menu_items(id_category, id_menu):
+def make_menu_items(id_category):
     """
     id_category : default id for category
-    id_menu : default id for menu
     """
     local_menu_items = [
         {
@@ -202,7 +203,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 17.5,
             "picture": "default.png",
             "preparation_time": 15,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -210,7 +210,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 20.5,
             "picture": "default.png",
             "preparation_time": 12,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -218,7 +217,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 17.5,
             "picture": "default.png",
             "preparation_time": 15,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -226,7 +224,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 15.0,
             "picture": "default.png",
             "preparation_time": 10,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -234,7 +231,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 16.0,
             "picture": "default.png",
             "preparation_time": 15,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -242,7 +238,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 16.0,
             "picture": "default.png",
             "preparation_time": 15,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -250,7 +245,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 17.0,
             "picture": "default.png",
             "preparation_time": 15,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -258,7 +252,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 15.5,
             "picture": "default.png",
             "preparation_time": 12,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -266,7 +259,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 17.5,
             "picture": "default.png",
             "preparation_time": 15,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -274,7 +266,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 16.5,
             "picture": "default.png",
             "preparation_time": 12,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -282,7 +273,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 17,
             "picture": "default.png",
             "preparation_time": 15,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -290,7 +280,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 16.5,
             "picture": "default.png",
             "preparation_time": 12,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -298,7 +287,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 20.5,
             "picture": "default.png",
             "preparation_time": 17,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -306,7 +294,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 18.5,
             "picture": "default.png",
             "preparation_time": 15,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -314,7 +301,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 17.5,
             "picture": "default.png",
             "preparation_time": 15,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -322,7 +308,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 16.5,
             "picture": "default.png",
             "preparation_time": 13,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -330,7 +315,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 16,
             "picture": "default.png",
             "preparation_time": 12,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -338,7 +322,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 17.5,
             "picture": "default.png",
             "preparation_time": 15,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -346,7 +329,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 18,
             "picture": "default.png",
             "preparation_time": 15,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -354,7 +336,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 20,
             "picture": "default.png",
             "preparation_time": 15,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -362,7 +343,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 15.5,
             "picture": "default.png",
             "preparation_time": 12,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -370,7 +350,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 17,
             "picture": "default.png",
             "preparation_time": 14,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -378,7 +357,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 17.5,
             "picture": "default.png",
             "preparation_time": 15,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -386,7 +364,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 19,
             "picture": "default.png",
             "preparation_time": 16,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -394,7 +371,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 17,
             "picture": "default.png",
             "preparation_time": 14,
-            "menu_id_menu": id_menu,
         },
         {
             "category_id_category": id_category,
@@ -402,7 +378,6 @@ def make_menu_items(id_category, id_menu):
             "unit_price": 17.5,
             "picture": "default.png",
             "preparation_time": 15,
-            "menu_id_menu": id_menu,
         },
     ]
     return local_menu_items
@@ -426,173 +401,175 @@ def make_unities():
 def make_ingredients():
     """
     make default ingredients
+    here id_unit is the litteral
+     content of unit short label
     """
     local_ingredients = [
         {
             "name": "pizza dough extra",
-            "id_unity": 1,
-            "value_unity": 1,
+            "id_unit": 'Kg',
+            "value_unit": 1,
             "unit_price": 2.5,
             "minimum_limit": 100,
         },
         {
             "name": "pizza dough std",
-            "id_unity": 1,
-            "value_unity": 1,
+            "id_unit": 'Kg',
+            "value_unit": 1,
             "unit_price": 2.1,
             "minimum_limit": 200,
         },
         {
             "name": "extra-virgin olive oil",
-            "id_unity": 3,
-            "value_unity": 1,
+            "id_unit": 'L',
+            "value_unit": 1,
             "unit_price": 2.5,
             "minimum_limit": 50,
         },
         {
             "name": "Frank’s hot sauce",
-            "id_unity": 4,
-            "value_unity": 200,
+            "id_unit": 'Ml',
+            "value_unit": 200,
             "unit_price": 2.4,
             "minimum_limit": 2000,
         },
         {
             "name": "bulk butter",
-            "id_unity": 1,
-            "value_unity": 2,
+            "id_unit": 'Kg',
+            "value_unit": 2,
             "unit_price": 4.4,
             "minimum_limit": 20,
         },
         {
             "name": "chicken legs",
-            "id_unity": 5,
-            "value_unity": 100,
+            "id_unit": '.',
+            "value_unit": 100,
             "unit_price": 45.6,
             "minimum_limit": 10,
         },
         {
             "name": "whole-milk plain yogurt",
-            "id_unity": 1,
-            "value_unity": 1,
+            "id_unit": 'G',
+            "value_unit": 1,
             "unit_price": 5.0,
             "minimum_limit": 2,
         },
         {
             "name": "lemon juice",
-            "id_unity": 3,
-            "value_unity": 1,
+            "id_unit": 'L',
+            "value_unit": 1,
             "unit_price": 3.2,
             "minimum_limit": 2,
         },
         {
             "name": "garlic powder",
-            "id_unity": 2,
-            "value_unity": 1000,
+            "id_unit": 'G',
+            "value_unit": 1000,
             "unit_price": 5.2,
             "minimum_limit": 1000,
         },
         {
             "name": "mild blue cheese",
-            "id_unity": 1,
-            "value_unity": 1,
+            "id_unit": 'Kg',
+            "value_unit": 1,
             "unit_price": 6.2,
             "minimum_limit": 5,
         },
         {
             "name": "mozzarella cheese",
-            "id_unity": 1,
-            "value_unity": 1,
+            "id_unit": 'Kg',
+            "value_unit": 1,
             "unit_price": 5.2,
             "minimum_limit": 5,
         },
         {
             "name": "parmesan cheese",
-            "id_unity": 1,
-            "value_unity": 1,
+            "id_unit": 'Kg',
+            "value_unit": 1,
             "unit_price": 4,
             "minimum_limit": 5,
         },
         {
             "name": "gruyere cheese",
-            "id_unity": 1,
-            "value_unity": 1,
+            "id_unit": 'Kg',
+            "value_unit": 1,
             "unit_price": 4.4,
             "minimum_limit": 5,
         },
         {
-            "name": "gruyere cheese",
-            "id_unity": 1,
-            "value_unity": 1,
+            "name": "White cheese",
+            "id_unit": 'Kg',
+            "value_unit": 1,
             "unit_price": 4.4,
             "minimum_limit": 5,
         },
         {
             "name": "tomato sauce",
-            "id_unity": 1,
-            "value_unity": 1,
+            "id_unit": 'L',
+            "value_unit": 1,
             "unit_price": 3.3,
             "minimum_limit": 5,
         },
         {
-            "name": "tomato sauce",
-            "id_unity": 3,
-            "value_unity": 1,
+            "name": "rotten tomato sauce",
+            "id_unit": 'L',
+            "value_unit": 1,
             "unit_price": 2.1,
             "minimum_limit": 5,
         },
         {
             "name": "salt",
-            "id_unity": 2,
-            "value_unity": 1000,
+            "id_unit": 'G',
+            "value_unit": 1000,
             "unit_price": 2,
             "minimum_limit": 2000,
         },
         {
             "name": "pepper",
-            "id_unity": 2,
-            "value_unity": 1000,
+            "id_unit": 'G',
+            "value_unit": 1000,
             "unit_price": 3,
             "minimum_limit": 2000,
         },
         {
             "name": "salmon slices",
-            "id_unity": 1,
-            "value_unity": 1,
+            "id_unit": 'Kg',
+            "value_unit": 1,
             "unit_price": 5,
             "minimum_limit": 3,
         },
         {
             "name": "fresh egg",
-            "id_unity": 5,
-            "value_unity": 1,
+            "id_unit": '.',
+            "value_unit": 1,
             "unit_price": 0.5,
             "minimum_limit": 40,
         },
         {
             "name": "mushrooms",
-            "id_unity": 1,
-            "value_unity": 1,
+            "id_unit": 'Kg',
+            "value_unit": 1,
             "unit_price": 2.5,
             "minimum_limit": 4,
         },
         {
             "name": "ham",
-            "id_unity": 1,
-            "value_unity": 1,
+            "id_unit": 'Kg',
+            "value_unit": 1,
             "unit_price": 3.4,
             "minimum_limit": 5,
         },
         {
             "name": "prosciutto sliced",
-            "id_unity": 1,
-            "value_unity": 1,
+            "id_unit": 'Kg',
+            "value_unit": 1,
             "unit_price": 4.1,
             "minimum_limit": 2,
         },
         {
             "name": "Pepperoni",
-            "id_unity": 1,
-            "value_unity": 1,
+            "id_unit": 'Kg',
+            "value_unit": 1,
             "unit_price": 3.1,
             "minimum_limit": 4,
         },
@@ -660,6 +637,21 @@ db = get_db()
 cursor = db.cursor()
 
 if not IS_ORDER_ONLY:
+    # Affectation des 'statuts'
+    statuts = make_status()
+    current_query = """
+    INSERT IGNORE INTO `statut` (
+    `label`
+    ) VALUES (
+    %(label)s
+    )
+    """
+    try:
+        cursor.executemany(current_query, statuts)
+    except mysql.connector.Error as err:
+        print("Failed inserting database (21): {}".format(err))
+
+
     # populate table 'person' #####
     persons = make_persons(NB_PERSONS)
     current_query = """
@@ -775,11 +767,11 @@ if not IS_ORDER_ONLY:
 
     current_query = """
         INSERT IGNORE INTO employee (
-        pizerria_id_pizzeria, num_registration, first_name,
+        pizzeria_id_pizzeria, num_registration, first_name,
         last_name, entitlement, hire_date,
         password, email, phone_number, create_time
         )  VALUES (
-            %(pizerria_id_pizzeria)s,
+            %(pizzeria_id_pizzeria)s,
             %(num_registration)s,
             %(first_name)s,
             %(last_name)s,
@@ -888,7 +880,7 @@ if not IS_ORDER_ONLY:
     # populate table 'unit'
     list_unities = make_unities()
     current_query = """
-    INSERT IGNORE INTO `unity`
+    INSERT IGNORE INTO `unit`
         (
             `label`,
             `short_label`
@@ -906,7 +898,8 @@ if not IS_ORDER_ONLY:
 list_pk_category = [
     role["id_category"] for role in get_pk_list(db, "category", ("id_category",))
 ]
-menu_items = make_menu_items(list_pk_category[0], list_pk_menu[0])
+
+menu_items = make_menu_items(list_pk_category[0])
 
 if not IS_ORDER_ONLY:
     current_query = """
@@ -915,21 +908,49 @@ if not IS_ORDER_ONLY:
         preparation_time,
         picture,
         description,
-        category_id_category,
-        menu_id_menu
+        category_id_category
         ) VALUES (
         %(unit_price)s,
         %(preparation_time)s,
         %(picture)s,
         %(description)s,
-        %(category_id_category)s,
-        %(menu_id_menu)s
+        %(category_id_category)s
         )
     """
     try:
         cursor.executemany(current_query, menu_items)
     except mysql.connector.Error as err:
         print("Failed inserting database (16): {}".format(err))
+
+list_pk_menu_item = [
+    list_pk_menu_item["id_menu_item"]
+    for list_pk_menu_item in get_pk_list(db, "menu_item", ("id_menu_item",))
+]
+
+if not IS_ORDER_ONLY:
+    # populate table jointure 'menu_has_menu_item'
+    # bind just one fake menu => doesnt matter for these tests case
+
+    current_query = """
+    INSERT IGNORE INTO `menu_has_menu_item` (
+    `menu_id_menu`,
+     `menu_item_id_menu_item`
+     ) VALUES (
+    %(menu_id_menu)s,
+     %(menu_item_id_menu_item)s
+     )
+    """
+    pseudo_join = []
+    for i, a in enumerate(list_pk_menu_item):
+        pseudo_join.append(
+            {'menu_item_id_menu_item': a,
+             'menu_id_menu': list_pk_menu[i % len(list_pk_menu)]
+             }
+        )
+    try:
+        cursor.executemany(current_query, pseudo_join)
+    except mysql.connector.Error as err:
+        print("Failed inserting database (99): {}".format(err))
 
     # populate table 'recipe'
     # ici on va faire une simple insertion "from select"
@@ -964,14 +985,14 @@ if not IS_ORDER_ONLY:
     INSERT IGNORE INTO `ingredient`
     (
         `name`,
-        `id_unity`,
-        `value_unity`,
+        `id_unit`,
+        `value_unit`,
         `unit_price`,
         `minimum_limit`
     ) VALUES (
         %(name)s,
-        %(id_unity)s,
-        %(value_unity)s,
+        (select id_unit from unit where %(id_unit)s like short_label),
+        %(value_unit)s,
         %(unit_price)s,
         %(minimum_limit)s
     )
@@ -984,6 +1005,7 @@ if not IS_ORDER_ONLY:
 list_pk_recipes = [
     recipe["id_recipe"] for recipe in get_pk_list(db, "recipe", ("id_recipe",))
 ]
+
 list_pk_ingredients = [
     ingredient["id_ingredient"]
     for ingredient in get_pk_list(db, "ingredient", ("id_ingredient",))
@@ -1031,26 +1053,12 @@ if not IS_ORDER_ONLY:
     # on constitue les stock pour chaque paire ingrédient/magasin
     for id_pizzeria in list_pk_pizzeria:
         current_query = (
-            "insert ignore into stock_ingredient "
-            "(ingredient_id_ingredient, date_change, value_stock, pizzeria_id_pizzeria)"
-            "select id_ingredient, "
-            "now(), value_unity * 100.0, " + str(id_pizzeria) + " from ingredient"
+                "insert ignore into stock_ingredient "
+                "(ingredient_id_ingredient, date_change, value_stock, pizzeria_id_pizzeria)"
+                "select id_ingredient, "
+                "now(), value_unit * 100.0, " + str(id_pizzeria) + " from ingredient"
         )
         cursor.execute(current_query)
-
-    # Affectation des 'statuts'
-    statuts = make_status()
-    current_query = """
-    INSERT IGNORE INTO `statut` (
-    `label`
-    ) VALUES (
-    %(label)s
-    )
-    """
-    try:
-        cursor.executemany(current_query, statuts)
-    except mysql.connector.Error as err:
-        print("Failed inserting database (21): {}".format(err))
 
 # maintenant on va pouvoir générer quelques commandes
 # 'Order' est rattaché à 3 tables en many 2 many
@@ -1062,6 +1070,36 @@ if not IS_ORDER_ONLY:
 for nb_commandes in range(NB_ORDERS):
     # on choisit un client au hasard
     rand_person = random.choice(list_pk_person)
+    # on commence par editer la facture
+    # attachée à l'employé qui l'a enregistrée
+    current_query = """
+    INSERT IGNORE INTO `mydb`.`invoice` (
+    `employee_id_employee`,
+    `is_paid`,
+    `is_on_place`,
+    `payment_date`,
+    `payment_mode`
+    ) VALUES (
+        (
+        select id_employee 
+        from employee 
+        where entitlement 
+        in ("CASHIER", "WAITER") 
+        ORDER BY RAND() LIMIT 1
+        ),
+    0,
+    RAND() > 0.5,
+    now(),
+    'CB'
+    )
+    """
+    try:
+        cursor.execute(current_query)
+    except mysql.connector.Error as err:
+        print("Failed inserting database (98): {}".format(err))
+    # on récupere l'id invoice
+    last_id_invoice = cursor.lastrowid
+
     # créer order (on renseigne juste la date du jour - 6 rand)
     # et l'identifiant de pizzeria
     current_query = """
@@ -1088,15 +1126,38 @@ for nb_commandes in range(NB_ORDERS):
     # (soit elle l'a choisi -si elle n'est pas authenfiee -,
     # soit le SI choisit en fonction de son adresse)
 
+    # liaison invoice_has_order
+    current_query = """
+    INSERT IGNORE INTO `invoice_has_order`(
+    `order_id_order`, `invoice_id_invoice`
+     ) VALUES (
+        %(order_id_order)s,
+        %(invoice_id_invoice)s
+     )
+    """
+    # créer la jointure order personne avec le statut 'To select'
+    try:
+        cursor.execute(
+            current_query,
+            {"order_id_order": last_id_order, "invoice_id_invoice": last_id_invoice},
+        )
+    except mysql.connector.Error as err:
+        print("Failed inserting database (1): {}".format(err))
+
+
+    # liaison order_has_person
     current_query = """
     INSERT IGNORE INTO `order_has_person`(
     `order_id_order`, `person_id_person`,
      `statut_id_statut`,
+     `employee_id_employee`,
      `ts_change`
      ) VALUES (
         %(order_id_order)s,
         %(person_id_person)s,
         (SELECT id_statut FROM statut where label like 'To select'),
+        (SELECT employee_id_employee 
+        FROM invoice where id_invoice = %(invoice_id_invoice)s),
         NOW()
      )
     """
@@ -1104,7 +1165,9 @@ for nb_commandes in range(NB_ORDERS):
     try:
         cursor.execute(
             current_query,
-            {"order_id_order": last_id_order, "person_id_person": rand_person},
+            {"order_id_order": last_id_order,
+             "person_id_person": rand_person,
+             "invoice_id_invoice": last_id_invoice},
         )
     except mysql.connector.Error as err:
         print("Failed inserting database (1): {}".format(err))
@@ -1116,11 +1179,6 @@ list_order_has_person = [
     for ohp in get_pk_list(
         db, "order_has_person", ("order_id_order", "person_id_person")
     )
-]
-
-list_pk_menu_item = [
-    list_pk_menu_item["id_menu_item"]
-    for list_pk_menu_item in get_pk_list(db, "menu_item", ("id_menu_item",))
 ]
 
 list_order_has_menu_item = list()
@@ -1171,11 +1229,22 @@ except mysql.connector.Error as err:
 current_query = """
 INSERT IGNORE INTO `order_has_person`(
 `order_id_order`, `person_id_person`,
- `statut_id_statut`,`ts_change`
+ `statut_id_statut`,
+ `employee_id_employee`, 
+ `ts_change`
  ) VALUES (
     %(order_id_order)s,
     %(person_id_person)s,
     (SELECT id_statut FROM statut where label like 'To order'),
+        (
+        select id_employee 
+        from employee 
+        where entitlement 
+        in ("CASHIER", "WAITER")
+        and pizzeria_id_pizzeria = (select hist_id_pizzeria 
+            from `order` where id_order = %(order_id_order)s) 
+        ORDER BY RAND() LIMIT 1
+        ),
     NOW()
  )
 """
@@ -1190,11 +1259,22 @@ except mysql.connector.Error as err:
 current_query = """
 INSERT IGNORE INTO `order_has_person`(
 `order_id_order`, `person_id_person`,
- `statut_id_statut`,`ts_change`
+ `statut_id_statut`,
+ `employee_id_employee`,
+ `ts_change`
  ) VALUES (
     %(order_id_order)s,
     %(person_id_person)s,
     (SELECT id_statut FROM statut where label like 'To pay'),
+        (
+        select id_employee 
+        from employee 
+        where entitlement 
+        in ("CASHIER", "WAITER") 
+        and pizzeria_id_pizzeria = (select hist_id_pizzeria 
+            from `order` where id_order = %(order_id_order)s) 
+        ORDER BY RAND() LIMIT 1
+        ),
     NOW()
  )
 """
@@ -1208,11 +1288,22 @@ except mysql.connector.Error as err:
 current_query = """
 INSERT IGNORE INTO `order_has_person`(
 `order_id_order`, `person_id_person`,
- `statut_id_statut`,`ts_change`
+ `statut_id_statut`,
+ `employee_id_employee`,
+ `ts_change`
  ) VALUES (
     %(order_id_order)s,
     %(person_id_person)s,
     (SELECT id_statut FROM statut where label like 'To prepare'),
+        (
+        select id_employee 
+        from employee 
+        where entitlement 
+        in ("COOK") 
+        and pizzeria_id_pizzeria = (select hist_id_pizzeria 
+            from `order` where id_order = %(order_id_order)s) 
+        ORDER BY RAND() LIMIT 1
+        ),    
     NOW()
  )
 """
@@ -1241,7 +1332,7 @@ inner join (
     inner join recipe r on ohm.menu_item_id_menu_item = r.menu_item_id_menu_item
     inner join recipe_has_ingredient rhi on r.id_recipe =rhi.recipe_id_recipe 
     inner join ingredient i on i.id_ingredient = rhi.ingredient_id_ingredient 
-    inner join unity u on u.id_unity = i.id_unity
+    inner join unit u on u.id_unit = i.id_unit
     where statut_id_statut = (
         select id_statut from statut where label like 'To prepare'
         ) 
@@ -1266,11 +1357,20 @@ except mysql.connector.Error as err:
 current_query = """
 INSERT IGNORE INTO `order_has_person`(
 `order_id_order`, `person_id_person`,
- `statut_id_statut`,`ts_change`
+ `statut_id_statut`,
+ `employee_id_employee`,
+ `ts_change`
  ) VALUES (
     %(order_id_order)s,
     %(person_id_person)s,
     (SELECT id_statut FROM statut where label like 'To deliver'),
+            (
+        select id_employee 
+        from employee 
+        where entitlement 
+        in ("COOK") 
+        ORDER BY RAND() LIMIT 1
+        ),
     NOW()
  )
 """
