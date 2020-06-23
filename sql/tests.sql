@@ -35,24 +35,29 @@ union
 
 
 -- Select addresse de livraison de la commande # pizzeria from # order 
-SELECT p.first_name, p.last_name, a.street_num, a.street, a.zip_code, a.city FROM address_has_pizzeria ahp 
+SELECT ahp.pizzeria_id_pizzeria, p.first_name, p.last_name, a.street_num, a.street, a.zip_code, a.city FROM address_has_pizzeria ahp 
             inner join address a on ahp.address_id_address = a.id_address and ahp.order = 1 and a.is_current = 1
             inner join person p on a.person_id_person = p.id_person and a.is_current = 1
 			inner join order_has_person ohp on ohp.person_id_person = a.person_id_person
-            where ohp.order_id_order = 1 and ohp.statut_id_statut = 5;
-       select * from order_has_person where  order_id_order = 1
-       and statut_id_statut = 5;
+            where ohp.order_id_order = 1 
+            and ohp.statut_id_statut = 5
+            ;
+            
+select * from order_has_person where  order_id_order = 1 and statut_id_statut = 5;
 
--- Select contenu de la livraison + etat de la livraison order #
-SELECT ohp.order_id_order, mi.description, ohmi.quantity, s.label  from  order_has_menu_item ohmi
+-- Select contenu de la livraison + etat de la commande order #
+SELECT 
+*
+-- ohp.order_id_order, mi.description, ohmi.quantity, s.label 
+ from  order_has_menu_item ohmi
 			inner join menu_item mi on ohmi.menu_item_id_menu_item = mi.id_menu_item
             inner join order_has_person ohp on ohp.order_id_order = ohmi.order_id_order
             inner join statut s on s.id_statut = ohp.statut_id_statut
-            where ohmi.order_id_order = 1  and (ohp.ts_change, ohp.statut_id_statut) = 
+            where ohmi.order_id_order = 2  and (ohp.ts_change, ohp.statut_id_statut) = 
             ( select ts_change, statut_id_statut from  order_has_person
-				where order_id_order = 1 order by ts_change, statut_id_statut desc limit 1) 
+				where order_id_order = 2 order by ts_change, statut_id_statut desc limit 1) 
             ;
-
+select * from  order_has_menu_item ohmi where ohmi.order_id_order = 1; 
             
 # select historique d'un ingredient
 select * from stock_ingredient 
@@ -60,6 +65,7 @@ where pizzeria_id_pizzeria = 3 and ingredient_id_ingredient = 2
 order by date_change desc;
 
 #  décrementation des stocks => validation de toutes les commandes 'To prepare'
+# Attention ce jeu rend les états incohérents 
  insert into stock_ingredient (ingredient_id_ingredient, date_change, value_stock, pizzeria_id_pizzeria)
 select 
 	s.ingredient_id_ingredient , 
@@ -87,7 +93,7 @@ inner join (
     group by s.ingredient_id_ingredient, s.pizzeria_id_pizzeria 
 	;
 
-# visualisation des stock en cours par prizzeria et ingredient
+# visualisation des stock en cours par pizzeria et par ingredient
 select 
 	s.ingredient_id_ingredient,
 	s.pizzeria_id_pizzeria , i.name, p.name,

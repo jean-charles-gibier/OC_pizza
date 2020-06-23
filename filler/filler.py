@@ -11,11 +11,10 @@ import random
 from faker import Faker
 import mysql.connector
 
-
 DB_USERNAME = "<YOURUSERNAME>"
 DB_PASSWORD = "<YOURPASSWD>"
 DB_NAME = "<YOURDBNAME>"
-DB_HOST = "<YOURHOST>"
+DB_HOST = "<YOURHOST>"  
 
 # we need these externals infos to cleanup quickly our db
 # DB_USERNAME / DB_PASSWORD will be used for authentication
@@ -1199,7 +1198,7 @@ for tuple_ohp in random.sample(
     ]
     local_list_ohp = [
         {"order_id_order": tuple_ohp[0], "person_id_person": tuple_ohp[1]}
-        for smi in set_menu_item
+#        for smi in set_menu_item
     ]
 
     list_order_has_menu_item.extend(local_list_ohm)
