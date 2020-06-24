@@ -11,16 +11,10 @@ import random
 from faker import Faker
 import mysql.connector
 
-"""
 DB_USERNAME = "<YOURUSERNAME>"
 DB_PASSWORD = "<YOURPASSWD>"
 DB_NAME = "<YOURDBNAME>"
 DB_HOST = "<YOURHOST>"  
-"""
-DB_USERNAME = 'openfoodfacts'
-DB_PASSWORD = 'openfoodfacts!!!!1'
-DB_NAME = 'mydb'
-DB_HOST = '127.0.0.1'
 
 # we need these externals infos to cleanup quickly our db
 # DB_USERNAME / DB_PASSWORD will be used for authentication
@@ -718,12 +712,13 @@ if not IS_ORDER_ONLY:
     current_query = """
         INSERT IGNORE INTO pizzeria
         (name, city, address,
-        localization, create_time)
+        localization, zip_code, create_time)
         VALUES (
         %(name)s,
         %(city)s,
         %(address)s,
         %(localization)s,
+        %(zip_code)s,
         CURRENT_TIMESTAMP);
     """
 
@@ -1189,9 +1184,10 @@ list_order_has_person = [
 list_order_has_menu_item = list()
 list_order_has_person_cmd = list()
 
-for tuple_ohp in [(last_id_order , rand_person)]:
-#        random.sample(
-#        list_order_has_person, NB_ORDERS - random.randrange(1, NB_ORDERS / 3)):
+# boucle inutile dans cette configuration
+# conservee pour la generation éventuelle de
+# liste de tuples order/person
+for tuple_ohp in [(last_id_order, rand_person)]:
     # choix aléatoire de 1 à 5 plats (menu_item) par commande
     # avec une qté aléatoire de 1 à 3 pour chaque plat
     set_menu_item = random.sample(list_pk_menu_item, random.randrange(1, 5))
@@ -1205,11 +1201,11 @@ for tuple_ohp in [(last_id_order , rand_person)]:
     ]
     local_list_ohp = [
         {"order_id_order": tuple_ohp[0], "person_id_person": tuple_ohp[1]}
-#        for smi in set_menu_item
     ]
 
     list_order_has_menu_item.extend(local_list_ohm)
     list_order_has_person_cmd.extend(local_list_ohp)
+
 current_query = """
     INSERT IGNORE INTO `order_has_menu_item`
     (
@@ -1356,6 +1352,8 @@ try:
     cursor.execute(current_query)
 except mysql.connector.Error as err:
     print("Failed inserting database  (100): {}".format(err))
+
+print("Stock mis à jour")
 
 # le pizzaoilo a terminé la préparation et décrémenté les stocks
 # la commande passe en état 'to deliver'

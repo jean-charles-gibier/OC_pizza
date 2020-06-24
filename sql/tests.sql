@@ -2,13 +2,11 @@
 -- order 
 select * from `order`;
 
-
 -- prix de fabrication d'une commande N°x
 select DESIGNATION, concat( TRIM(TRAILING 0 from TOTAL),  ' €') AS TOTAL
 from (
 	SELECT DESIGNATION, TOTAL from (
-	SELECT  max('TOTAL commande')
-	AS DESIGNATION,
+	SELECT  max('TOTAL commande') AS DESIGNATION,
 	sum( rhi.quantity * (i.unit_price / i.value_unit)) AS TOTAL
 	--   rhi.quantity * i.unit_price 
 		FROM order_has_menu_item hmi
@@ -16,7 +14,7 @@ from (
 		inner join recipe_has_ingredient rhi on r.id_recipe =rhi.recipe_id_recipe 
 		inner join ingredient i on i.id_ingredient = rhi.ingredient_id_ingredient 
 		inner join unit u on u.id_unit = i.id_unit
-		where hmi.order_id_order  = 2
+		where hmi.order_id_order  = 15
 		group  by hmi.order_id_order
 		)a
 union 
@@ -54,7 +52,11 @@ select * from order_has_menu_item o where o.order_id_order >= 1 ;
 select * from order_has_menu_item o where o.order_id_order = 2 ;
 
 select * from statut ;
-
+/*
+La première: retrouver sur une commande qui est commanditaire, qui est le pizzaiolo, qui est le livreur
+La deuxième: combien reste t-il de tel ingredient dans tel stock
+Le dernière, retrouver le prix total d'une commande qui contient plusieurs pizzas differentes
+*/
 
 -- Select contenu de la livraison + etat de la commande order #
 SELECT 
@@ -81,7 +83,9 @@ select
 	s.ingredient_id_ingredient,
 	s.pizzeria_id_pizzeria , i.name, p.name,
 	s.date_change ,
-    s.value_stock
+    s.value_stock ,
+    i.minimum_limit ,
+    case when s.value_stock >= i.minimum_limit then 'OK' else 'RUPTURE' end AS stock
 from   stock_ingredient s
 inner join pizzeria p on s.pizzeria_id_pizzeria = p.id_pizzeria
 inner join ingredient i on s.ingredient_id_ingredient = i.id_ingredient
@@ -93,6 +97,55 @@ inner join ingredient i on s.ingredient_id_ingredient = i.id_ingredient
 --     group by s.ingredient_id_ingredient, s.pizzeria_id_pizzeria 
 	;
 
+-- Indique si une pizza donnée est réalisable avec stock pour un restau donné.
+-- paramètre pizzeria X  plat Y  par exemple
+select 
+c.id_menu_item id_menu,
+mi2.`description`,
+c.id_pizzeria id_pizzeria,
+p2.`name`,
+ min(
+c.ingredient_ok
+  ) 
+is_dispo 
+ from ( 
+	select 0 as zero,
+	b.id_pizzeria as id_pizzeria,
+	a.menu_item_id_menu_item as id_menu_item,
+	a.quantity < b.value_stock as ingredient_ok  
+    from (
+--   ingrédients nécessaires a la prepartion du menu_item    
+		select rhi.ingredient_id_ingredient, 
+        rhi.quantity,
+		r.menu_item_id_menu_item 
+		from menu_item mi 
+		inner join recipe r on r.menu_item_id_menu_item = mi.id_menu_item
+		inner join recipe_has_ingredient rhi on rhi.recipe_id_recipe = r.id_recipe
+	)a inner join (
+--  etat des ingrédients pour tout les restos
+		select si.ingredient_id_ingredient, si.value_stock, p.id_pizzeria 
+		from pizzeria p 
+		inner join stock_ingredient si on p.id_pizzeria = si.pizzeria_id_pizzeria
+		where si.date_change = (
+			select max(date_change) from stock_ingredient dc where
+			dc.ingredient_id_ingredient = si.ingredient_id_ingredient
+			and dc.pizzeria_id_pizzeria  = si.pizzeria_id_pizzeria 
+			)
+	) b on b.ingredient_id_ingredient = a.ingredient_id_ingredient
+)c 
+inner join pizzeria p2 on c.id_pizzeria = p2.id_pizzeria
+inner join menu_item mi2 on c.id_menu_item = mi2.id_menu_item
+group by 1,3
+order by 5
+;
 
+select * from stock_ingredient order by 2 desc;
 
-
+-- de quoi est constituée la pizza X 2
+select * from menu_item mi 
+inner join recipe r on r.menu_item_id_menu_item = mi.id_menu_item
+ inner join recipe_has_ingredient rhi on r.id_recipe = rhi.recipe_id_recipe
+ inner join ingredient i on rhi.ingredient_id_ingredient = i.id_ingredient
+ where mi.id_menu_item = 2;
+ 
+ -- on va virer l'ingredient 4 du resto 1 
