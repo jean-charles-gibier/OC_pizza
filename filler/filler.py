@@ -11,10 +11,16 @@ import random
 from faker import Faker
 import mysql.connector
 
+"""
 DB_USERNAME = "<YOURUSERNAME>"
 DB_PASSWORD = "<YOURPASSWD>"
 DB_NAME = "<YOURDBNAME>"
 DB_HOST = "<YOURHOST>"  
+"""
+DB_USERNAME = 'openfoodfacts'
+DB_PASSWORD = 'openfoodfacts!!!!1'
+DB_NAME = 'mydb'
+DB_HOST = '127.0.0.1'
 
 # we need these externals infos to cleanup quickly our db
 # DB_USERNAME / DB_PASSWORD will be used for authentication
@@ -1183,8 +1189,9 @@ list_order_has_person = [
 list_order_has_menu_item = list()
 list_order_has_person_cmd = list()
 
-for tuple_ohp in random.sample(
-        list_order_has_person, NB_ORDERS - random.randrange(1, NB_ORDERS / 3)):
+for tuple_ohp in [(last_id_order , rand_person)]:
+#        random.sample(
+#        list_order_has_person, NB_ORDERS - random.randrange(1, NB_ORDERS / 3)):
     # choix aléatoire de 1 à 5 plats (menu_item) par commande
     # avec une qté aléatoire de 1 à 3 pour chaque plat
     set_menu_item = random.sample(list_pk_menu_item, random.randrange(1, 5))
