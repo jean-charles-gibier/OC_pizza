@@ -11,10 +11,12 @@ import random
 from faker import Faker
 import mysql.connector
 
+"""
 DB_USERNAME = "<YOURUSERNAME>"
 DB_PASSWORD = "<YOURPASSWD>"
 DB_NAME = "<YOURDBNAME>"
 DB_HOST = "<YOURHOST>"  
+"""
 
 # we need these externals infos to cleanup quickly our db
 # DB_USERNAME / DB_PASSWORD will be used for authentication
