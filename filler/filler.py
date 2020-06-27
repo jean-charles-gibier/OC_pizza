@@ -17,6 +17,10 @@ DB_PASSWORD = "<YOURPASSWD>"
 DB_NAME = "<YOURDBNAME>"
 DB_HOST = "<YOURHOST>"  
 """
+DB_USERNAME = 'openfoodfacts'
+DB_PASSWORD = 'openfoodfacts!!!!1'
+DB_NAME = 'mydb'
+DB_HOST = '127.0.0.1'
 
 # we need these externals infos to cleanup quickly our db
 # DB_USERNAME / DB_PASSWORD will be used for authentication
